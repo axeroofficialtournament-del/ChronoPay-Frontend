@@ -77,6 +77,8 @@ interface ToastProps { toast: ToastItem; onDismiss: (id: string) => void; }
 
 const NOTIFICATION_CATEGORIES = ["bookings", "payments", "disputes", "system"];
 
+/** Categories whose toasts persist until they are read or dismissed. */
+
 export function Toast({ toast, onDismiss }: ToastProps) {
   const { id, variant, title, description, count, messages, category, onUndo, actions } = toast;
   const isCritical = variant === "critical";
@@ -84,6 +86,9 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   const config = variantConfig[variant];
   const Icon = config.icon;
   const isGrouped = count > 1;
+  const isPersistentCategory = category
+    ? NOTIFICATION_CATEGORIES.includes(category)
+    : false;
   const hasActions = Array.isArray(actions) && actions.length > 0;
   const panelId = `toast-panel-${id}`;
   const reducedMotion = useReducedMotion();

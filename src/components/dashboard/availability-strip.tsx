@@ -1,9 +1,9 @@
-use client";
+"use client";
 
 import { ButtonLink } from "@/app/components/ui/button-link";
 import { StatusChip } from "./status-chip";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import clsx from "clsx";
 import { BidiIsolate, isRTL } from "@/utils/bidi";
 
@@ -24,7 +24,7 @@ interface AvailabilityStripProps {
   /** Optional supplier ID to scope booking links to a specific supplier. */
   supplierId?: string;
   /** Optional href to the full availability view (e.g. supplier profile availability tab). */
-  fullAvailabilityHhref?: string;
+  fullAvailabilityHref?: string;
 }
 
 const statusLabels: Record<DayAvailability["status"], string> = {
@@ -56,11 +56,11 @@ export function AvailabilityStrip({
 
   const handleScrollRight = () => {
     if (canScrollRight) {
-      setStartIndex((prev: numb) => prev + 1);
+      setStartIndex((prev: number) => prev + 1);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+  const handleKeyDown = (e: KeyboardEvent, action: () => void) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       action();
@@ -77,7 +77,7 @@ export function AvailabilityStrip({
         role="status"
         aria-live="polite"
       >
-        <OpenCalendar className="mx-auto mb-3 h-12 w-12 text-slate-500" aria-hidden="true" />
+        <Calendar className="mx-auto mb-3 h-12 w-12 text-slate-500" aria-hidden="true" />
         <p className="text-sm text-slate-400">No availability data available</p>
         {fullAvailabilityHref && (
           <a
@@ -93,7 +93,7 @@ export function AvailabilityStrip({
 
   return (
     <section
-      className={clsx("rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 sm/p-5", className)}
+      className={clsx("rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 sm:p-5", className)}
       aria-label="7-day availability preview"
       dir={rtl ? "rtl" : "ltr"}
     >
@@ -159,12 +159,12 @@ export function AvailabilityStrip({
               key={dayId}
               className="rounded-xl border border-white/8 bg-white/4 p-4 transition-colors hover:border-white/12"
               role="listitem"
-              aria-labelledby={`${dayId}-label}`
-              aria-describedby={`${dayId}-status}`
+              aria-labelledby={`${dayId}-label`}
+              aria-describedby={`${dayId}-status`}
             >
               <div className="mb-3">
                 <p
-                  id={`${dayId}-label}
+                  id={`${dayId}-label`}
                   className="text-xs font-semibold uppercase tracking-wider text-slate-400"
                 >
                   <BidiIsolate locale={locale}>{day.dayName}</BidiIsolate>
@@ -181,7 +181,7 @@ export function AvailabilityStrip({
                   </span>
                 </div>
                 <StatusChip
-                  id={`${dayId}-status}
+                  id={`${dayId}-status`}
                   tone={day.status === "available" ? "positive" : day.status === "limited" ? "warning" : day.status === "full" ? "critical" : "neutral"}
                   aria-label={`Status: ${statusLabels[day.status]}`}
                 >

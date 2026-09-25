@@ -112,6 +112,59 @@ const slotDetailsMap: Record<
   },
 };
 
+/** Demo dispute so the tracking view has something to render. */
+const DEMO_EPOCH = Date.now();
+
+function buildExistingDisputes(slotId: string): Dispute[] {
+  return [
+  {
+    id: "disp-12345678",
+    slotId,
+    category: "quality_mismatch",
+    reason: "Service quality did not match expectations",
+    description: "The delivered consultation was significantly shorter than the agreed 1.5 hours and lacked the depth of technical analysis promised in the description.",
+    status: "under_review",
+    evidence: [
+      {
+        id: "ev-1",
+        fileName: "chat_transcript.pdf",
+        fileSize: 245000,
+        fileType: "application/pdf",
+        uploadStatus: "completed",
+        scanStatus: "clean",
+        uploadedAt: new Date(DEMO_EPOCH).toISOString()
+      }
+    ],
+    createdAt: new Date(DEMO_EPOCH - 86400000).toISOString(),
+    updatedAt: new Date(DEMO_EPOCH - 3600000).toISOString(),
+    submittedAt: new Date(DEMO_EPOCH - 86400000).toISOString(),
+    notes: [
+      {
+        id: "note-1",
+        author: "System",
+        authorRole: "system",
+        content: "Dispute submitted successfully. Awaiting initial review.",
+        createdAt: new Date(DEMO_EPOCH - 86400000).toISOString()
+      }
+    ],
+    metadata: {
+      priority: "medium",
+      escalationCount: 0,
+      lastActivityAt: new Date(DEMO_EPOCH - 3600000).toISOString()
+    }
+  }
+  ];
+}
+
+/** Deterministic demo redemption code for a slot. */
+function demoTokenCode(slotId: string): string {
+  const seed = Array.from(slotId).reduce(
+    (acc, ch) => (acc * 31 + ch.charCodeAt(0)) % 9000,
+    7,
+  );
+  return `CHR-${slotId.toUpperCase()}-${1000 + seed}`;
+}
+
 export default function SlotDetailPage({
   params,
 }: {
@@ -176,44 +229,9 @@ export default function SlotDetailPage({
   const [currentDispute, setCurrentDispute] = useState<Dispute | null>(null);
   
   // Mock existing dispute for demonstration
-  const [existingDisputes, setExistingDisputes] = useState<Dispute[]>([
-    {
-      id: "disp-12345678",
-      slotId: id,
-      category: "quality_mismatch",
-      reason: "Service quality did not match expectations",
-      description: "The delivered consultation was significantly shorter than the agreed 1.5 hours and lacked the depth of technical analysis promised in the description.",
-      status: "under_review",
-      evidence: [
-        {
-          id: "ev-1",
-          fileName: "chat_transcript.pdf",
-          fileSize: 245000,
-          fileType: "application/pdf",
-          uploadStatus: "completed",
-          scanStatus: "clean",
-          uploadedAt: new Date().toISOString()
-        }
-      ],
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 3600000).toISOString(),
-      submittedAt: new Date(Date.now() - 86400000).toISOString(),
-      notes: [
-        {
-          id: "note-1",
-          author: "System",
-          authorRole: "system",
-          content: "Dispute submitted successfully. Awaiting initial review.",
-          createdAt: new Date(Date.now() - 86400000).toISOString()
-        }
-      ],
-      metadata: {
-        priority: "medium",
-        escalationCount: 0,
-        lastActivityAt: new Date(Date.now() - 3600000).toISOString()
-      }
-    }
-  ]);
+  const [existingDisputes, setExistingDisputes] = useState<Dispute[]>(() =>
+    buildExistingDisputes(id),
+  );
 
   // DRAFT ABANDONMENT STATE
   const [hasDraft, setHasDraft] = useState(false);
@@ -1321,7 +1339,7 @@ export default function SlotDetailPage({
       <RedeemTokenModal
         isOpen={isRedeemModalOpen}
         onClose={() => setIsRedeemModalOpen(false)}
-        tokenCode={`CHR-${slot.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`}
+        tokenCode={demoTokenCode(slot.id)}
       />
     </DashboardShell>
   );

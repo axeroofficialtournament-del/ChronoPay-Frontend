@@ -24,7 +24,7 @@ describe("elevation token system", () => {
   });
 
   it("applies the scale to cards, popovers, tooltips, and modals", () => {
-    expect(css).toMatch(/\.card\s*\{[^}]*var\(--elevation-1\)/s);
+    expect(css).toMatch(/\.card\s*\{[^}]*var\(--elevation-1\)/);
     expect(read("src/app/components/ui/help-popover.tsx")).toContain("elevation-3");
     expect(read("src/app/components/ui/tooltip.tsx")).toContain("elevation-2");
     expect(read("src/components/receipt/ReceiptModal.tsx")).toContain("elevation-4");

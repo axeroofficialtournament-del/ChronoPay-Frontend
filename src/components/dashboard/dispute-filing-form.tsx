@@ -45,23 +45,24 @@ export function DisputeFilingForm({
   const formId = useId();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
 
-  const validateField = useCallback((field: string, value: any): string | null => {
+  const validateField = useCallback(
+    (field: string, value: unknown): string | null => {
     switch (field) {
       case "category":
         if (!value) return "Please select a dispute category";
         return null;
       case "reason":
-        if (!value.trim()) return "Reason is required";
-        if (value.length < REASON_MIN_LENGTH) 
+        if (!String(value).trim()) return "Reason is required";
+        if (String(value).length < REASON_MIN_LENGTH) 
           return `Reason must be at least ${REASON_MIN_LENGTH} characters`;
-        if (value.length > REASON_MAX_LENGTH) 
+        if (String(value).length > REASON_MAX_LENGTH) 
           return `Reason must not exceed ${REASON_MAX_LENGTH} characters`;
         return null;
       case "description":
-        if (!value.trim()) return "Description is required";
-        if (value.length < DESCRIPTION_MIN_LENGTH) 
+        if (!String(value).trim()) return "Description is required";
+        if (String(value).length < DESCRIPTION_MIN_LENGTH) 
           return `Description must be at least ${DESCRIPTION_MIN_LENGTH} characters`;
-        if (value.length > DESCRIPTION_MAX_LENGTH) 
+        if (String(value).length > DESCRIPTION_MAX_LENGTH) 
           return `Description must not exceed ${DESCRIPTION_MAX_LENGTH} characters`;
         return null;
       case "evidence":
@@ -83,7 +84,7 @@ export function DisputeFilingForm({
     }
   }, [evidenceFiles]);
 
-  const handleFieldBlur = (field: string, value: any) => {
+  const handleFieldBlur = (field: string, value: unknown) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     const error = validateField(field, value);
     setErrors(prev => ({ 

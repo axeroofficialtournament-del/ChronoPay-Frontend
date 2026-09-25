@@ -131,11 +131,13 @@ describe("SupplierProfileHero", () => {
   });
 
   it("disables follow button while busy", async () => {
-    let resolvePromise: (v: unknown) => void = () => {};
-    const onFollowToggle = vi.fn(
+    let resolvePromise: () => void = () => {};
+    const onFollowToggle = vi.fn<
+      (following: boolean) => void | Promise<void>
+    >(
       () =>
-        new Promise((resolve) => {
-          resolvePromise = resolve;
+        new Promise<void>((resolve) => {
+          resolvePromise = () => resolve();
         }),
     );
     render(
@@ -149,7 +151,7 @@ describe("SupplierProfileHero", () => {
     });
     await userEvent.click(followBtn);
     expect(followBtn).toBeDisabled();
-    resolvePromise(null);
+    resolvePromise();
   });
 
   it("truncates long name and title", () => {

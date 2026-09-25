@@ -5,8 +5,8 @@ import type { HolidayHint, RegionInfo } from "./types";
 
 // ─── Test data ───────────────────────────────────────────────────────────────
 
-const usRegion: RegionInfo = { code: "US", name: "United States" };
-const ngRegion: RegionInfo = { code: "NG", name: "Nigeria" };
+const usRegion: RegionInfo = { country: "United States", code: "US", name: "United States" };
+const ngRegion: RegionInfo = { country: "Nigeria", code: "NG", name: "Nigeria" };
 
 const sampleHolidays: HolidayHint[] = [
   {

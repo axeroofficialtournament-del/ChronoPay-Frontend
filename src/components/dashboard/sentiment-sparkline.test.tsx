@@ -23,28 +23,28 @@ import type { SentimentDataPoint } from "./types";
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const TWO_POINTS: SentimentDataPoint[] = [
-  { period: "2026-07-01", positive: 30, mixed: 10, critical: 5 },
-  { period: "2026-07-08", positive: 48, mixed: 17, critical: 9 },
+  { timestamp: "2026-07-01", positive: 30, mixed: 10, critical: 5 },
+  { timestamp: "2026-07-08", positive: 48, mixed: 17, critical: 9 },
 ];
 
 const EIGHT_POINTS: SentimentDataPoint[] = [
-  { period: "2026-06-01", positive: 22, mixed: 11, critical: 7 },
-  { period: "2026-06-08", positive: 28, mixed: 13, critical: 8 },
-  { period: "2026-06-15", positive: 31, mixed: 15, critical: 9 },
-  { period: "2026-06-22", positive: 35, mixed: 14, critical: 10 },
-  { period: "2026-06-29", positive: 38, mixed: 16, critical: 9 },
-  { period: "2026-07-06", positive: 41, mixed: 15, critical: 8 },
-  { period: "2026-07-13", positive: 45, mixed: 17, critical: 9 },
-  { period: "2026-07-20", positive: 48, mixed: 17, critical: 9 },
+  { timestamp: "2026-06-01", positive: 22, mixed: 11, critical: 7 },
+  { timestamp: "2026-06-08", positive: 28, mixed: 13, critical: 8 },
+  { timestamp: "2026-06-15", positive: 31, mixed: 15, critical: 9 },
+  { timestamp: "2026-06-22", positive: 35, mixed: 14, critical: 10 },
+  { timestamp: "2026-06-29", positive: 38, mixed: 16, critical: 9 },
+  { timestamp: "2026-07-06", positive: 41, mixed: 15, critical: 8 },
+  { timestamp: "2026-07-13", positive: 45, mixed: 17, critical: 9 },
+  { timestamp: "2026-07-20", positive: 48, mixed: 17, critical: 9 },
 ];
 
 const SINGLE_POINT: SentimentDataPoint[] = [
-  { period: "2026-07-20", positive: 48, mixed: 17, critical: 9 },
+  { timestamp: "2026-07-20", positive: 48, mixed: 17, critical: 9 },
 ];
 
 const ALL_SAME: SentimentDataPoint[] = [
-  { period: "2026-07-01", positive: 10, mixed: 10, critical: 10 },
-  { period: "2026-07-08", positive: 10, mixed: 10, critical: 10 },
+  { timestamp: "2026-07-01", positive: 10, mixed: 10, critical: 10 },
+  { timestamp: "2026-07-08", positive: 10, mixed: 10, critical: 10 },
 ];
 
 // ─── Tests ────────────────────────────────────────────────────────────────────

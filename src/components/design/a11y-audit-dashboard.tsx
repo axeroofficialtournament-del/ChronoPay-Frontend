@@ -19,7 +19,9 @@ function IssueCard({
   issue: AccessibilityIssue;
   isSelected: boolean;
   onClick: () => void;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  triggerRef:
+    | React.RefObject<HTMLButtonElement | null>
+    | ((el: HTMLButtonElement | null) => void);
 }) {
   const severityColors = {
     critical: "border-rose-400/30 hover:bg-rose-400/5 hover:border-rose-400/50",
@@ -146,7 +148,7 @@ export function A11yAuditDashboard() {
               id: 'Live',
               title: violation.id,
               description: '',
-              level: '',
+              level: 'A',
               specUrl: violation.helpUrl,
               techniques: violation.tags
             },
@@ -156,7 +158,9 @@ export function A11yAuditDashboard() {
               explanation: ''
             },
             impact: violation.help || 'minor',
-            elementType: Array.isArray(node.target) ? node.target[0] : 'unknown',
+            elementType: Array.isArray(node.target)
+                ? String(node.target[0])
+                : 'unknown',
             location: 'Staged Route'
           });
         });

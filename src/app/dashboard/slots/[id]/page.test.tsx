@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -5,7 +6,15 @@ import SlotDetailPage from "./page";
 
 // Mock the next/link and lucide-react
 vi.mock("next/link", () => ({
-  default: ({ children, href, className }: any) => (
+  default: ({
+    children,
+    href,
+    className,
+  }: {
+    children?: ReactNode;
+    href?: string;
+    className?: string;
+  }) => (
     <a href={href} className={className}>
       {children}
     </a>
@@ -85,7 +94,7 @@ describe("SlotDetailPage", () => {
     render(<SlotDetailPage params={defaultParams} />);
     
     // Simulate disconnected state
-    const simDisconnectedBtn = await screen.findByRole("button", { name: /disconnected/i, exact: true });
+    const simDisconnectedBtn = await screen.findByRole("button", { name: /disconnected/i });
     await user.click(simDisconnectedBtn);
     
     const connectButton = await screen.findByRole("button", { name: /Connect Stellar Wallet/i });

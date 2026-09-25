@@ -125,6 +125,8 @@ export function MonthCalendarView({
   // Find the index of the selected date in the grid
   useEffect(() => {
     const idx = days.findIndex((d) => d && isSameDay(d, selectedDate));
+    // The roving focus target must follow the externally selected date.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- prop-sync
     if (idx >= 0) setFocusedDayIndex(idx);
   }, [selectedDate, days]);
 

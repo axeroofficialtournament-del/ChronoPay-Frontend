@@ -438,7 +438,6 @@ describe("SavedViewChips", () => {
     await user.click(screen.getByRole("button", { name: "Save view" }));
 
     expect(screen.getByRole("button", { name: "Offline" })).toBeInTheDocument();
-    fallback.mockRestore?.();
     vi.unstubAllGlobals();
   });
 

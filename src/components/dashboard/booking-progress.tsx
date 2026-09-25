@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId } from "react";
+import { useCallback, useId, useState } from "react";
 import { HelpPopover } from "@/app/components/ui/help-popover";
 import { CopyButton } from "@/app/components/ui/copy-button";
 import { glossary } from "@/lib/glossary";

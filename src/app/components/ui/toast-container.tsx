@@ -14,12 +14,13 @@
  * dismiss the entire stack in one action — useful after a burst.
  */
 
+import { Layers } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Toast } from "./toast";
 
 export function ToastContainer() {
-  const { toasts, dismiss, dismissAll } = useToast();
+  const { toasts, dismiss, dismissAll, queued } = useToast();
   const reducedMotion = useReducedMotion();
 
   return (
@@ -55,7 +56,7 @@ export function ToastContainer() {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
-            transition={reducedMotion ? false : { duration: 0.15 }}
+            transition={reducedMotion ? { duration: 0 } : { duration: 0.15 }}
             className="pointer-events-auto flex justify-end"
           >
             <button

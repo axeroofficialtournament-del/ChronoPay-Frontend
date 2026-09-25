@@ -84,7 +84,7 @@ export function ReviewFilters({
             id="review-sort"
             className="appearance-none bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             value={sortBy}
-            onChange={(e) => onSortChange(e.target.value as any)}
+            onChange={(e) => onSortChange(e.target.value as ReviewFiltersProps["sortBy"])}
           >
             <option value="recent">Most recent</option>
             <option value="helpful">Most helpful</option>

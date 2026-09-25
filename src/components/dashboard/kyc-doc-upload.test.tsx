@@ -20,10 +20,12 @@ function setupMocks(shouldFail = false) {
 }
 
 describe("KycDocUpload", () => {
-  let onCaptureComplete: ReturnType<typeof vi.fn>;
+  let onCaptureComplete: ReturnType<
+    typeof vi.fn<(success: boolean, imageData?: string) => void>
+  >;
 
   beforeEach(() => {
-    onCaptureComplete = vi.fn();
+    onCaptureComplete = vi.fn<(success: boolean, imageData?: string) => void>();
     setupMocks();
   });
 

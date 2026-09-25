@@ -70,7 +70,6 @@ export function StatusTimeline({ items }: StatusTimelineProps) {
   const statusId = useId();
   const listRef = useRef<HTMLOListElement>(null);
   const scrollTopRef = useRef(0);
-  const statusId = useId();
 
   // Determine which items to display
   const displayedNodes = milestonesOnly

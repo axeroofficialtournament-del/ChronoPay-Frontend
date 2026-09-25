@@ -27,6 +27,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect } from "vitest";
 import { EarningsChart } from "./earnings-chart";
+import type { EarningsSegment } from "./types";
 
 // EarningsSegment type is used inline in each test as object literals
 
@@ -46,6 +47,11 @@ const ALL_ZERO: EarningsSegment[] = [
 const EQUAL_VALUE: EarningsSegment[] = [
   { id: "a", label: "A", value: 50, formattedValue: "$50", colorClass: "bg-cyan-500" },
   { id: "b", label: "B", value: 50, formattedValue: "$50", colorClass: "bg-amber-500" },
+];
+
+const TWO_SEGMENTS: EarningsSegment[] = [
+  { id: "base", label: "Base", value: 80, formattedValue: "$80.00", colorClass: "bg-cyan-500" },
+  { id: "tips", label: "Tips", value: 20, formattedValue: "$20.00", colorClass: "bg-amber-500" },
 ];
 
 // ─── Null / empty states ──────────────────────────────────────────────────────

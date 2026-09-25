@@ -51,8 +51,8 @@ const oneCriterion: RatingCriterion[] = [
 ];
 
 const sparklineData: SentimentDataPoint[] = [
-  { period: "2026-07-01", positive: 30, mixed: 10, critical: 5 },
-  { period: "2026-07-08", positive: 48, mixed: 17, critical: 9 },
+  { timestamp: "2026-07-01", positive: 30, mixed: 10, critical: 5 },
+  { timestamp: "2026-07-08", positive: 48, mixed: 17, critical: 9 },
 ];
 
 // ─── EarningsChart — gridline track ───────────────────────────────────────────

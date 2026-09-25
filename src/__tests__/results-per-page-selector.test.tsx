@@ -11,13 +11,11 @@ import { Suspense } from "react";
 
 // Mock next/navigation. We mutate this object's methods between renders
 // to simulate URL changes (back button, deep link arrival, etc.).
-const mockSearchParams: {
-  get: (k: string) => string | null;
-  entries: () => IterableIterator<[string, string]>;
-  toString: () => string;
-} = {
-  get: vi.fn(() => null),
-  entries: vi.fn(function* () {}),
+const mockSearchParams = {
+  get: vi.fn((_key: string): string | null => null),
+  entries: vi.fn(
+    function* (): IterableIterator<[string, string]> {},
+  ),
   toString: vi.fn(() => ""),
 };
 
@@ -57,7 +55,10 @@ beforeEach(() => {
   // Reset the URL seam to "no params".
   mockSearchParams.toString.mockReturnValue("");
   // Default `entries` yields nothing when no URL params.
-  mockSearchParams.entries = vi.fn(function* () {});
+  mockSearchParams.entries = vi.fn(function* (): IterableIterator<[
+    string,
+    string,
+  ]> {});
   // window.location.search is read once via the lazy initializer — patch it
   // for each test that wants to simulate a deep link.
   window.history.replaceState(null, "", "/marketplace");

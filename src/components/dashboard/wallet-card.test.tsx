@@ -564,7 +564,7 @@ describe("WalletCard", () => {
 
   it("shows a dedicated empty state per holdings tab and restores the last tab on remount", async () => {
     const user = userEvent.setup();
-    const emptyHoldings = [];
+    const emptyHoldings: never[] = [];
 
     const { unmount } = renderWithProviders(
       <WalletCard wallet={connectedWallet} holdings={emptyHoldings} />,

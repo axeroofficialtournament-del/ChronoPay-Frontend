@@ -30,6 +30,7 @@ vi.mock("@/hooks/use-toast", () => ({
     toast: vi.fn(() => "toast-id"),
     dismiss: vi.fn(),
     dismissAll: vi.fn(),
+    queued: [],
   })),
 }));
 
@@ -266,6 +267,7 @@ describe("ReviewVoteButtons", () => {
       toast: mockToast,
       dismiss: vi.fn(),
       dismissAll: vi.fn(),
+      queued: [],
     });
     const onVote = vi.fn().mockRejectedValue(new Error("Network error"));
     render(
@@ -292,6 +294,7 @@ describe("ReviewVoteButtons", () => {
       toast: mockToast,
       dismiss: vi.fn(),
       dismissAll: vi.fn(),
+      queued: [],
     });
     render(
       <ReviewVoteButtons
@@ -316,6 +319,7 @@ describe("ReviewVoteButtons", () => {
       toast: mockToast,
       dismiss: vi.fn(),
       dismissAll: vi.fn(),
+      queued: [],
     });
     render(
       <ReviewVoteButtons
@@ -339,6 +343,7 @@ describe("ReviewVoteButtons", () => {
       toast: mockToast,
       dismiss: vi.fn(),
       dismissAll: vi.fn(),
+      queued: [],
     });
     render(
       <ReviewVoteButtons

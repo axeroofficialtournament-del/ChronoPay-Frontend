@@ -13,8 +13,11 @@ export function RedeemTokenModal({ isOpen, onClose, tokenCode }: RedeemTokenModa
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes countdown
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // Reset the flow whenever the modal is (re)opened so a previous
+  // redemption never leaks into a new one.
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset on open
       setStep("qr");
       setTimeLeft(300);
       setCopied(false);

@@ -30,11 +30,9 @@ import { TimezoneRibbon } from "./timezone-ribbon";
 import { KeepOriginalPriceChip } from "./keep-original-price-chip";
 import { RebookingDialog } from "./rebooking-dialog";
 import { glossary } from "@/lib/glossary";
-import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
-import { StatusChip } from "./status-chip";
-import { SocialProofBadges } from "./social-proof-badges";
 import type { Slot } from "./types";
-import { EmptyStateCard } from "../../app/components/empty-state-card";
+import type { AlternativeSlot, RebookingChoice } from "./rebooking-utils";
+import { useDensity, type Density } from "@/hooks/use-density";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { CalendarView } from "./calendar-view";
 
@@ -84,6 +82,17 @@ interface SlotListProps {
 
 const localDefaultSlots: Slot[] = [
   {
+    id: "slot-0",
+    title: "Founder office hours",
+    dateLabel: "Today",
+    timeRange: "09:00 - 09:30 UTC",
+    status: "Healthy",
+    demand: "High Demand",
+    rate: "120 XLM / hr",
+    durationMinutes: 30,
+    isNextAvailable: true,
+  },
+  {
     id: "slot-1",
     title: "1-on-1 Architecture Consultation",
     dateLabel: "Today",
@@ -91,7 +100,8 @@ const localDefaultSlots: Slot[] = [
     status: "Healthy",
     demand: "High Demand",
     rate: "50 XLM / hr",
-    isNextAvailable: true,
+    durationMinutes: 60,
+    isNextAvailable: false,
   },
   {
     id: "slot-2",
@@ -101,16 +111,29 @@ const localDefaultSlots: Slot[] = [
     status: "Tight",
     demand: "Medium Demand",
     rate: "75 XLM / hr",
+    durationMinutes: 45,
     isNextAvailable: false,
   },
   {
     id: "slot-3",
+    title: "Quick 15-minute intro",
+    dateLabel: "Tomorrow",
+    timeRange: "13:00 - 13:15 UTC",
+    status: "Healthy",
+    demand: "Low Demand",
+    rate: "20 XLM / hr",
+    durationMinutes: 15,
+    isNextAvailable: false,
+  },
+  {
+    id: "slot-4",
     title: "Pair Programming Session",
     dateLabel: "Fri, Aug 14",
     timeRange: "16:00 - 17:30 UTC",
     status: "Busy",
     demand: "High Demand",
     rate: "85 XLM / hr",
+    durationMinutes: 90,
     isNextAvailable: false,
     lifecycleStatus: "rescheduled",
   },
@@ -133,6 +156,8 @@ function toneForStatus(status: string) {
 }
 
 type DropPosition = "before" | "after";
+
+type ViewMode = "list" | "month" | "week" | "day";
 
 // ─── SuggestedAlternativesCarousel ────────────────────────────────────────────
 
@@ -263,6 +288,58 @@ function SuggestedAlternativesCarousel({
 
 // ─── SlotList ─────────────────────────────────────────────────────────────────
 
+// ─── DensityToggle ────────────────────────────────────────────────────────────
+
+const DENSITY_MODES: { value: Density; label: string }[] = [
+  { value: "comfortable", label: "Comfortable" },
+  { value: "balanced", label: "Balanced" },
+  { value: "compact", label: "Compact" },
+];
+
+/**
+ * Density control for the slot list. It writes through to the shared
+ * `chronopay-density` store, so choosing a mode here also applies to every
+ * other data-dense surface rather than creating a second preference.
+ */
+function DensityToggle({
+  density,
+  onChange,
+}: {
+  density: Density;
+  onChange: (density: Density) => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Density"
+      className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1"
+    >
+      {DENSITY_MODES.map((option) => {
+        const active = density === option.value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-label={`${option.label} density`}
+            aria-pressed={active}
+            title={`${option.label} density`}
+            onClick={() => onChange(option.value)}
+            className={clsx(
+              "rounded px-2.5 py-1 text-xs font-medium transition-colors motion-reduce:transition-none",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300",
+              active
+                ? "bg-white/10 text-white shadow-sm"
+                : "text-slate-400 hover:bg-white/5 hover:text-white",
+            )}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export const SlotList = ({
   slots = localDefaultSlots,
   supplierId = "supplier-001",
@@ -275,47 +352,48 @@ export const SlotList = ({
   onRebookConfirm,
 }: SlotListProps) => {
   const [activeTz, setActiveTz] = useState<string>("UTC");
-  
+  const { density, setDensity } = useDensity();
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  // The URL is the initial source of truth for the view, but the toggle also
+  // updates local state so the view switches immediately even when the router
+  // is a no-op (server-rendered hosts, mocked router in tests, etc.).
   const viewParam = searchParams.get("view");
-  const viewMode = (viewParam === "month" || viewParam === "week" || viewParam === "day") ? viewParam : "list";
-  
-  const setViewMode = (mode: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", mode);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  const [viewMode, setViewModeState] = useState<ViewMode>(() =>
+    viewParam === "month" || viewParam === "week" || viewParam === "day"
+      ? viewParam
+      : "list",
+  );
 
-  const [{ x }, api] = useSpring(() => ({ x: 0 }));
+  const setViewMode = useCallback(
+    (mode: ViewMode) => {
+      setViewModeState(mode);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("view", mode);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [conflicts, setConflicts] = useState<Record<string, string>>({});
+  // Optional `?duration=` filter (minutes). Absent / non-numeric means "all".
+  const durationParam = searchParams.get("duration");
+  const durationFilter =
+    durationParam === null || durationParam.trim() === ""
+      ? undefined
+      : Number(durationParam);
+  const activeDurationFilter =
+    durationFilter !== undefined && Number.isFinite(durationFilter)
+      ? durationFilter
+      : undefined;
 
-  const bind = useDrag((state) => {
-    // state.first / state.last indicate drag lifecycle
-    if (state.first) setIsDragging(true);
-    if (state.last) setIsDragging(false);
-
-    // quick examples of conflict detection while dragging
-    // real app should compute based on drop target + business rules
-    if (state.active) {
-      const found: Record<string, string> = {};
-      slots.forEach((s) => {
-        // Existing booking
-        if (s.status && s.status.toLowerCase() === "booked") {
-          found[s.id] = "Existing booking";
-        }
-
-        // Blocked day flag (some slot data may include `blocked`)
-        if ((s as any).blocked) {
-          found[s.id] = "Blocked day";
-        }
-      });
-      setConflicts(found);
-    }
-  });
+  const [orderedSlots, setOrderedSlots] = useState<Slot[]>(() =>
+    activeDurationFilter === undefined
+      ? slots
+      : slots.filter((slot) => slot.durationMinutes === activeDurationFilter),
+  );
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
@@ -515,7 +593,7 @@ export const SlotList = ({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="slot-list space-y-4" data-density={density}>
       {/* Timezone Ribbon Header */}
       <TimezoneRibbon
         supplierId={supplierId}
@@ -543,8 +621,9 @@ export const SlotList = ({
       )}
 
       {/* ── View Toggle ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 mb-4" role="group" aria-label="View mode">
-        {["list", "month", "week", "day"].map((mode) => (
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2" role="group" aria-label="View mode">
+         {(["list", "month", "week", "day"] as const).map((mode) => (
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
@@ -558,6 +637,8 @@ export const SlotList = ({
             {mode}
           </button>
         ))}
+        </div>
+        <DensityToggle density={density} onChange={setDensity} />
       </div>
 
       {/* ── Primary slot list ───────────────────────────────────────────── */}
@@ -582,23 +663,7 @@ export const SlotList = ({
       ) : (
         <>
           {viewMode === "list" ? (
-          <ul className="space-y-4" {...bind()}>
-          {slots.map((slot) => {
-            const slotTitleId = "slot-" + slot.id + "-title";
-            const slotDetailsId = "slot-" + slot.id + "-details";
-            const isConflictTarget = activeConflictSlotId === slot.id || activeConflictSlotId === `slot-${slot.id}`;
-
-            return (
-              <li
-                key={slot.id}
-                className="space-y-2 relative"
-                aria-describedby={conflicts[slot.id] ? `conflict-${slot.id}` : undefined}
-              >
-                Clear selection ({selectedIds.size})
-              </button>
-            ) : null}
-          </div>
-          <ul className="space-y-4">
+            <ul className="space-y-4">
             {orderedSlots.map((slot) => {
               const slotTitleId = `slot-${slot.id}-title`;
               const slotDetailsId = `slot-${slot.id}-details`;
@@ -621,7 +686,16 @@ export const SlotList = ({
                   onDrop={(e) => handleDrop(slot, e)}
                   onDragEnd={clearDragState}
                   onKeyDown={(e) => handleRowKeyDown(slot, e)}
-                  className="relative space-y-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  data-density={density}
+                  className={clsx(
+                    "relative transition-colors motion-reduce:transition-none",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
+                    density === "compact"
+                      ? "space-y-1"
+                      : density === "comfortable"
+                        ? "space-y-3"
+                        : "space-y-2",
+                  )}
                   aria-describedby={
                     conflicts[slot.id] ? `conflict-${slot.id}` : undefined
                   }
@@ -632,7 +706,12 @@ export const SlotList = ({
 
                   <div
                     className={clsx(
-                      "rounded-[1.5rem] border p-4 transition-colors sm:p-5",
+                      "rounded-[1.5rem] border transition-colors motion-reduce:transition-none",
+                      density === "compact"
+                        ? "p-2.5 sm:p-3"
+                        : density === "comfortable"
+                          ? "p-5 sm:p-6"
+                          : "p-4 sm:p-5",
                       isSelected
                         ? "border-cyan-400/40 bg-cyan-400/10"
                         : "border-white/10 bg-white/[0.03] hover:border-cyan-400/30 hover:bg-cyan-400/[0.06]",
@@ -741,45 +820,6 @@ export const SlotList = ({
           <CalendarView slots={slots} viewMode={viewMode as "month" | "week" | "day"} />
         )}
 
-        {suggestedAlternatives.length > 0 ? (
-            <section className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Rebook a matching slot</h3>
-                  <p className="mt-1 text-sm text-slate-300">Suggested alternatives</p>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {suggestedAlternatives.map((alternative, index) => (
-                  <button
-                    key={alternative.id}
-                    ref={(element) => {
-                      alternativeRefs.current[index] = element;
-                    }}
-                    type="button"
-                    tabIndex={0}
-                    aria-label={`Alternative slot: ${alternative.title}, ${alternative.dateLabel} ${alternative.timeRange}`}
-                    onKeyDown={(event) => handleAlternativeKeyDown(index, event)}
-                    className="rounded-[1.25rem] border border-white/10 bg-slate-900/70 p-4 text-left transition hover:border-cyan-400/40 hover:bg-slate-800/90"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-medium text-white">{alternative.title}</p>
-                      <StatusChip tone={mapTone(alternative.status)}>{alternative.status}</StatusChip>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-300">{alternative.dateLabel} · {alternative.timeRange}</p>
-                    <p className="mt-3 text-sm text-slate-400">{alternative.demand}</p>
-                    <p className="mt-2 text-sm text-cyan-200">{alternative.rate}</p>
-                  </button>
-                ))}
-              </div>
-            </section>
-          ) : (
-            <section className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-              <h3 className="text-lg font-semibold text-white">Rebook a matching slot</h3>
-              <p className="mt-2 text-sm text-slate-300">No matching alternatives found</p>
-              <p className="mt-1 text-sm text-slate-400">No alternatives</p>
-            </section>
-          )}
         </>
       )}
 

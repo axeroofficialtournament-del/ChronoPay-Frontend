@@ -783,3 +783,22 @@ body {
     word-break: break-all;
   }
 }
+
+/* ── Slot list density ─────────────────────────────────────────────────────
+   The slot list consumes the shared density mode (`data-density`), so the
+   `--density-*` tokens above re-tokenise its cards along with every other
+   data-dense surface. Density changes are visual only: users who ask for
+   reduced motion get an instant switch with no transition. */
+.slot-list li,
+.slot-list button {
+  transition-property: color, background-color, border-color, box-shadow, padding;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-list li,
+  .slot-list button {
+    transition: none;
+  }
+}
